@@ -16,7 +16,7 @@ public class ControlPrincipal extends ControlAbstracto {
         switch (c) {
             case Comandos.INICIA:
                 vPrin = new VentanaPrincipal();
-                vPrin.setBounds(200, 200, 800, 600);
+                vPrin.setBounds(250, 50, 800, 600);
                 vPrin.setVisible(true);
 
                 break;
