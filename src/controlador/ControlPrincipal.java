@@ -15,7 +15,6 @@ public class ControlPrincipal extends ControlAbstracto {
     public Data ejecutaComando(String c, Data d) {
         switch (c) {
             case Comandos.INICIA:
-                vPrin = new VentanaPrincipal();
                 vPrin.setBounds(250, 50, 800, 600);
                 vPrin.setVisible(true);
 
@@ -27,5 +26,9 @@ public class ControlPrincipal extends ControlAbstracto {
         }
         return null;
     }
+
+    // public void setvPrin(VentanaPrincipal vPrin) {
+    // this.vPrin = vPrin;
+    // }
 
 }

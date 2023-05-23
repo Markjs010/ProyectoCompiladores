@@ -17,8 +17,11 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import controlador.Comandos;
+import controlador.ControladorVentana;
+import modelo.Gramatica;
 
 public class VentanaPrincipal extends VentanaAbstracta {
+    Gramatica gramatica;
 
     private JTextArea reglasGramaticales;
     private JTextArea cadenaAnalizar;
@@ -117,6 +120,8 @@ public class VentanaPrincipal extends VentanaAbstracta {
         switch (e.getActionCommand()) {
             case Comandos.COMPROBAR:
                 reglas = this.reglasGramaticales.getText();
+                gramatica = new Gramatica(reglas);
+                this.control.ejecutaComando(Comandos.COMPROBAR, gramatica);
                 break;
             case Comandos.BORRAR:
                 break;
