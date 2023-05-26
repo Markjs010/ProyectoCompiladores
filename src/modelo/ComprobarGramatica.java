@@ -15,7 +15,7 @@ public class ComprobarGramatica implements ComprobarG {
 
     }
 
-    // TODO Comprobar si es gramatica regular
+    // TODO ObtenerProduccionesFinales
 
     public boolean esGramaticaRegular(Gramatica g) {
         String[] reglasSeparadas = g.getProducciones();
@@ -39,7 +39,9 @@ public class ComprobarGramatica implements ComprobarG {
 
         for (int i = 0; i < reglasSeparadas.length; i++) {
             if (i % 2 == 0) {
-                ladoIzquierdo.add(reglasSeparadas[i]);
+                if (!ladoIzquierdo.contains(reglasSeparadas[i])) {
+                    ladoIzquierdo.add(reglasSeparadas[i]);
+                }
             } else {
                 ladoDerecho.add(reglasSeparadas[i]);
             }
@@ -54,41 +56,48 @@ public class ComprobarGramatica implements ComprobarG {
     // TODO Quitar recursividad a la izquierda
 
     public void quitarRecursividadIzquierda(Gramatica g) {
-        List<String> nuevasReglas = g.getProduccionesFinales();
-        String[] noTerminales = g.getNoTerminales();
-        String[] terminales = g.getTerminales();
+        List<String> nuevasReglas = new ArrayList<String>();
+        List<String> ladoDerecho = g.getLadoDerecho();
+        List<String> ladoIzquierdo = g.getLadoIzquierdo();
+        g.setProduccionesFinales(nuevasReglas);
 
-        for (int i = 0; i < noTerminales.length; i++) {
-            for (int j = 0; j < terminales.length; j++) {
-                if (noTerminales[i].charAt(0) == terminales[j].charAt(0)) {
-                    if (i == j) { // recursividad directa
-                        String reglaNoRecursiva = encontrarReglaNoRecursiva(noTerminales[i].charAt(0), g);
-                        if (reglaNoRecursiva != null) { // Falta agregar condicion para que no se repita la regla que
-                                                        // quita recursividad con la noRecursiva
-                            String nuevaRegla = noTerminales[i] + "->" + reglaNoRecursiva + ("X" + i);
-                            nuevasReglas.add(nuevaRegla);
-                        } else {
-                            System.out.println("No se puede quitar la recursividad a la izquierda");
-                        }
+        for (int i = 0; i < ladoIzquierdo.size(); i++) {
+            for (int j = 0; j < ladoDerecho.size(); j++) {
+                if (ladoIzquierdo.get(i).charAt(0) == ladoDerecho.get(j).charAt(0)) {
+                    String reglaNoRecursiva = encontrarReglaNoRecursiva(ladoIzquierdo.get(i).charAt(0), g);
+                    if (reglaNoRecursiva != null) {
+                        String izqNoRecu = (ladoIzquierdo.get(i).charAt(0) + "'");
+                        String nuevaRegla = ladoIzquierdo.get(i).charAt(0) + "->" + reglaNoRecursiva + izqNoRecu;
+                        nuevasReglas.add(nuevaRegla);
+                        nuevaRegla = (izqNoRecu + "->") + ladoDerecho.get(j).substring(1) + izqNoRecu;
+                        nuevasReglas.add(nuevaRegla);
+                        nuevaRegla = (izqNoRecu + "->e");
+                        nuevasReglas.add(nuevaRegla);
+                        g.setProduccionesFinales(nuevasReglas);
+
                     } else {
-
+                        System.out.println("No se puede quitar la recursividad a la izquierda");
                     }
+
                 }
             }
         }
+        System.out.println(nuevasReglas);
 
     }
 
+    // TODO arreglar condicion para no repetir lado derecho
     public String encontrarReglaNoRecursiva(char noTerminal, Gramatica g) {
-        String[] noTerminales = g.getNoTerminales();
-        String[] terminales = g.getTerminales();
+        List<String> ladoDerecho = g.getLadoDerecho();
+        List<String> ladoIzquierdo = g.getLadoIzquierdo();
+        List<String> produccionesFinales = g.getProduccionesFinales();
 
-        for (int i = 0; i < noTerminales.length; i++) { // Se busca en los no terminales la regla que no sea recursiva
-            if (noTerminales[i].charAt(0) == noTerminal) {
-                if (terminales[i].charAt(0) != noTerminal) { // Si la regla es no recursiva, se regresa esa regla
-                    return terminales[i];
+        for (int i = 0; i < ladoIzquierdo.size(); i++) { // Se busca en los no terminales la regla que no sea recursiva
+            for (int j = 0; j < ladoDerecho.size(); j++) {
+                if (ladoIzquierdo.get(i).charAt(0) == noTerminal && ladoDerecho.get(j).charAt(0) != noTerminal
+                        && !produccionesFinales.contains(ladoDerecho.get(j))) {
+                    return ladoDerecho.get(j);
                 }
-
             }
         }
         return null; // Si no se encuentra una regla no recursiva, se regresa null

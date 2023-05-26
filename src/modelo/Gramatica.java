@@ -1,5 +1,6 @@
 package modelo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Gramatica implements Data {
@@ -9,7 +10,7 @@ public class Gramatica implements Data {
     private String[] terminales;
     private String[] noTerminales;
     private String[] producciones;
-    private List<String> produccionesFinales;
+    private List<String> produccionesFinales = new ArrayList<String>();
     private List<String> ladoIzquierdo;
     private List<String> ladoDerecho;
 
@@ -72,7 +73,7 @@ public class Gramatica implements Data {
     }
 
     public void setProduccionesFinales(List<String> produccionesFinales) {
-        this.produccionesFinales = produccionesFinales;
+        this.produccionesFinales.addAll(produccionesFinales);
     }
 
     public List<String> getLadoIzquierdo() {

@@ -19,7 +19,7 @@ public class ControladorVentana extends ControlAbstracto {
                 comprobarG.obtenerProducciones(g);
                 if (comprobarG.esGramaticaRegular(g)) {
                     comprobarG.separarTerminales(g);
-                    // comprobarG.quitarRecursividadIzquierda(g);
+                    comprobarG.quitarRecursividadIzquierda(g);
                 }
                 break;
             default:
