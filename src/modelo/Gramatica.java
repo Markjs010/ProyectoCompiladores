@@ -7,8 +7,8 @@ public class Gramatica implements Data {
     // TODO: generar nuevas variables que definan el lado izquierdo del derecho
     // (podria cambiar noterminal y terminal por estos)
     private String cadena;
-    private String[] terminales;
-    private String[] noTerminales;
+    private List<String> terminales;
+    private List<String> noTerminales;
     private String[] producciones;
     private List<String> produccionesFinales = new ArrayList<String>();
     private List<String> ladoIzquierdo;
@@ -22,8 +22,8 @@ public class Gramatica implements Data {
 
     public Gramatica() {
         this.cadena = "";
-        this.terminales = new String[0];
-        this.noTerminales = new String[0];
+        this.terminales = new ArrayList<String>();
+        this.noTerminales = new ArrayList<String>();
         this.producciones = new String[0];
         this.inicial = "";
     }
@@ -32,11 +32,11 @@ public class Gramatica implements Data {
         return cadena;
     }
 
-    public String[] getTerminales() {
+    public List<String> getTerminales() {
         return terminales;
     }
 
-    public String[] getNoTerminales() {
+    public List<String> getNoTerminales() {
         return noTerminales;
     }
 
@@ -52,11 +52,11 @@ public class Gramatica implements Data {
         this.cadena = cadena;
     }
 
-    public void setTerminales(String[] terminales) {
+    public void setTerminales(List<String> terminales) {
         this.terminales = terminales;
     }
 
-    public void setNoTerminales(String[] noTerminales) {
+    public void setNoTerminales(List<String> noTerminales) {
         this.noTerminales = noTerminales;
     }
 
