@@ -140,7 +140,8 @@ public class ComprobarGramatica implements ComprobarG {
         List<String> noTerminales = g.getNoTerminales();
 
         for (int i = 0; i < noTerminales.size(); i++) { // Se busca en los no terminales la regla que no sea recursiva
-            if (noTerminales.get(i).charAt(0) == noTerminal && ladoDerecho.get(i).charAt(0) != noTerminal) {
+            if (noTerminales.get(i).charAt(0) == noTerminal && ladoDerecho.get(i).charAt(0) != noTerminal
+                    && !noTerminales.contains(Character.toString(ladoDerecho.get(i).charAt(0)))) {
                 return ladoDerecho.get(i);
             }
 
@@ -148,9 +149,58 @@ public class ComprobarGramatica implements ComprobarG {
         return null; // Si no se encuentra una regla no recursiva, se regresa null
     }
 
-    public void quitarRecuIndirecta(Gramatica g){
+    public void quitarRecuIndirecta(Gramatica g) {
         // TODO Quitar recursividad indirecta
-        
+        List<String> terminales = g.getTerminales();
+        List<String> ladoIzquierdo = g.getLadoIzquierdo();
+        List<String> noTerminales = g.getNoTerminales();
+        List<String> aux1 = new ArrayList<String>();
+        List<String> aux2 = new ArrayList<String>();
+        List<String> aux3 = new ArrayList<String>();
+
+        for (int i = 0; i < ladoIzquierdo.size(); i++) {
+            for (int j = 0; j < terminales.size(); j++) {
+                if (ladoIzquierdo.contains(Character.toString(terminales.get(j).charAt(
+                        0))) && ladoIzquierdo.get(i).charAt(0) != terminales.get(j).charAt(0)) {
+
+                    if (!aux1.contains(noTerminales.get(j)) || !aux2.contains(terminales.get(j))) {
+                        aux1.add(noTerminales.get(j));
+                        aux2.add(terminales.get(j));
+                        aux3.add(terminales.get(j).substring(0, 1));
+                    }
+
+                    String noRecu = encontrarReglaNoRecursiva(terminales.get(j).charAt(0), g);
+                    if (noRecu != null) {
+                        String noTerRecursivo = Character.toString(terminales.get(j).charAt(0));
+                        int inx = aux3.indexOf(noTerRecursivo);
+                        cambiarReglaIndirecta(noTerRecursivo, aux1.get(inx), aux2.get(inx), g);
+                        // System.out.println(aux1.get(inx) + " " + aux2.get(inx));
+                        // System.out.println(noTerRecursivo);
+
+                    }
+                }
+            }
+        }
+
+    }
+
+    public void cambiarReglaIndirecta(String noTerRecu, String aux1, String aux2, Gramatica g) {
+        // TODO Cambiar regla indirecta
+
+        List<String> terminales = g.getTerminales();
+        List<String> ladoIzquierdo = g.getLadoIzquierdo();
+        List<String> noTerminales = g.getNoTerminales();
+
+        for (int i = 0; i < terminales.size(); i++) {
+            if (Character.toString(terminales.get(i).charAt(0)).equals(aux1)
+                    && noTerminales.get(i).equals(noTerRecu)) {
+                System.out.println(noTerminales.get(i) + " " + terminales.get(i));
+                terminales.add(i, (aux2 + terminales.get(i).substring(1)));
+                terminales.remove(i + 1);
+            }
+        }
+        System.out.println("terminal act " + terminales);
+        System.out.println("No terminal act " + noTerminales);
 
     }
     // TODO Obtener primeros y siguientes
