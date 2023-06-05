@@ -67,42 +67,40 @@ public class ComprobarGramatica implements ComprobarG {
         List<String> nuevasReglas = new ArrayList<String>();
         List<String> ladoDerecho = g.getLadoDerecho();
         List<String> ladoIzquierdo = g.getLadoIzquierdo();
+        List<String> noTerminales = g.getNoTerminales();
         List<String> borrar = new ArrayList<String>();
         g.setProduccionesFinales(nuevasReglas);
-
-        for (int i = 0; i < ladoIzquierdo.size(); i++) {
-            for (int j = 0; j < ladoDerecho.size(); j++) {
-                if (ladoIzquierdo.get(i).charAt(0) == ladoDerecho.get(j).charAt(0)) {
-                    String reglaNoRecursiva = encontrarReglaNoRecursiva(ladoIzquierdo.get(i).charAt(0), g);
-                    if (reglaNoRecursiva != null) {
-                        String nuevaRegla;
-                        String izqNoRecu = (ladoIzquierdo.get(i).charAt(0) + "'");
-                        if (!borrar.contains(reglaNoRecursiva)) {
-                            nuevaRegla = ladoIzquierdo.get(i).charAt(0) + "->" + reglaNoRecursiva + izqNoRecu;
-                            nuevasReglas.add(nuevaRegla);
-                            borrar.add(reglaNoRecursiva);
-                        }
-                        nuevaRegla = (izqNoRecu + "->") + ladoDerecho.get(j).substring(1) + izqNoRecu;
+        for (int j = 0; j < ladoDerecho.size(); j++) {
+            if (noTerminales.get(j).charAt(0) == ladoDerecho.get(j).charAt(0)) {
+                String reglaNoRecursiva = encontrarReglaNoRecursiva(noTerminales.get(j).charAt(0), g);
+                if (reglaNoRecursiva != null) {
+                    String nuevaRegla;
+                    String izqNoRecu = (noTerminales.get(j).charAt(0) + "'");
+                    if (!borrar.contains(reglaNoRecursiva)) {
+                        nuevaRegla = noTerminales.get(j).charAt(0) + "->" + reglaNoRecursiva + izqNoRecu;
                         nuevasReglas.add(nuevaRegla);
-                        // NO REGLA NO RECURSIVA ARREGLAR ERROR
-                        String epsilon = incluirEpsilon(izqNoRecu, nuevasReglas);
-                        if (epsilon != null) {
-                            nuevasReglas.add(epsilon);
-                        }
-
-                        borrar.add(ladoDerecho.get(j));
-
-                    } else {
-                        System.out.println("No se puede quitar la recursividad a la izquierda");
+                        borrar.add(reglaNoRecursiva);
+                    }
+                    nuevaRegla = (izqNoRecu + "->") + ladoDerecho.get(j).substring(1) + izqNoRecu;
+                    nuevasReglas.add(nuevaRegla);
+                    // NO REGLA NO RECURSIVA ARREGLAR ERROR
+                    String epsilon = incluirEpsilon(izqNoRecu, nuevasReglas);
+                    if (epsilon != null) {
+                        nuevasReglas.add(epsilon);
                     }
 
+                    borrar.add(ladoDerecho.get(j));
+
+                } else {
+                    System.out.println("No se puede quitar la recursividad a la izquierda");
                 }
+
             }
-
-            System.out.println("Estas son las nuevas reglas" + nuevasReglas);
         }
-        g.setProduccionesFinales(nuevasReglas);
 
+        System.out.println("Estas son las nuevas reglas" + nuevasReglas);
+
+        g.setProduccionesFinales(nuevasReglas);
         actualizarReglasTerminales(borrar, g);
     }
 
@@ -134,7 +132,6 @@ public class ComprobarGramatica implements ComprobarG {
 
     }
 
-    // TODO arreglar condicion para no repetir lado derecho
     public String encontrarReglaNoRecursiva(char noTerminal, Gramatica g) {
         List<String> ladoDerecho = g.getLadoDerecho();
         List<String> noTerminales = g.getNoTerminales();
@@ -150,7 +147,6 @@ public class ComprobarGramatica implements ComprobarG {
     }
 
     public void quitarRecuIndirecta(Gramatica g) {
-        // TODO Quitar recursividad indirecta
         List<String> terminales = g.getTerminales();
         List<String> ladoIzquierdo = g.getLadoIzquierdo();
         List<String> noTerminales = g.getNoTerminales();
@@ -158,29 +154,32 @@ public class ComprobarGramatica implements ComprobarG {
         List<String> aux2 = new ArrayList<String>();
         List<String> aux3 = new ArrayList<String>();
 
-        for (int i = 0; i < ladoIzquierdo.size(); i++) {
-            for (int j = 0; j < terminales.size(); j++) {
-                if (ladoIzquierdo.contains(Character.toString(terminales.get(j).charAt(
-                        0))) && ladoIzquierdo.get(i).charAt(0) != terminales.get(j).charAt(0)) {
+        for (int j = 0; j < terminales.size(); j++) {
+            if (ladoIzquierdo.contains(Character.toString(terminales.get(j).charAt(
+                    0))) && noTerminales.get(j).charAt(0) != terminales.get(j).charAt(0)) {
 
-                    if (!aux1.contains(noTerminales.get(j)) || !aux2.contains(terminales.get(j))) {
-                        aux1.add(noTerminales.get(j));
-                        aux2.add(terminales.get(j));
-                        aux3.add(terminales.get(j).substring(0, 1));
-                    }
-
-                    String noRecu = encontrarReglaNoRecursiva(terminales.get(j).charAt(0), g);
-                    if (noRecu != null) {
-                        String noTerRecursivo = Character.toString(terminales.get(j).charAt(0));
-                        int inx = aux3.indexOf(noTerRecursivo);
-                        cambiarReglaIndirecta(noTerRecursivo, aux1.get(inx), aux2.get(inx), g);
-                        // System.out.println(aux1.get(inx) + " " + aux2.get(inx));
-                        // System.out.println(noTerRecursivo);
-
-                    }
+                if (!aux1.contains(noTerminales.get(j)) || !aux2.contains(terminales.get(j))) {
+                    aux1.add(noTerminales.get(j));
+                    aux2.add(terminales.get(j));
+                    aux3.add(terminales.get(j).substring(0, 1));
                 }
+
+                String noRecu = encontrarReglaNoRecursiva(terminales.get(j).charAt(0), g);
+                if (noRecu != null) {
+                    String noTerRecursivo = Character.toString(terminales.get(j).charAt(0));
+                    int inx = aux3.indexOf(noTerRecursivo);
+                    System.out.println(aux1.get(inx) + " " + aux2.get(inx) + " " + noTerRecursivo);
+                    cambiarReglaIndirecta(noTerRecursivo, aux1.get(inx), aux2.get(inx), g);
+                }
+
             }
         }
+
+        // System.out.println("Funciona? ");
+
+        obtenerProducciones(g);
+        separarTerminales(g);
+        quitarRecursividadIzquierda(g);
 
     }
 
@@ -188,8 +187,8 @@ public class ComprobarGramatica implements ComprobarG {
         // TODO Cambiar regla indirecta
 
         List<String> terminales = g.getTerminales();
-        List<String> ladoIzquierdo = g.getLadoIzquierdo();
         List<String> noTerminales = g.getNoTerminales();
+        String[] nuevasReglas = new String[noTerminales.size()];
 
         for (int i = 0; i < terminales.size(); i++) {
             if (Character.toString(terminales.get(i).charAt(0)).equals(aux1)
@@ -198,9 +197,10 @@ public class ComprobarGramatica implements ComprobarG {
                 terminales.add(i, (aux2 + terminales.get(i).substring(1)));
                 terminales.remove(i + 1);
             }
+            nuevasReglas[i] = (noTerminales.get(i) + "->" + terminales.get(i) + "\n");
         }
-        System.out.println("terminal act " + terminales);
-        System.out.println("No terminal act " + noTerminales);
+
+        g.setCadena(String.join("", nuevasReglas));
 
     }
     // TODO Obtener primeros y siguientes
