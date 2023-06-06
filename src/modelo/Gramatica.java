@@ -1,6 +1,7 @@
 package modelo;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class Gramatica implements Data {
@@ -13,6 +14,8 @@ public class Gramatica implements Data {
     private List<String> produccionesFinales = new ArrayList<String>();
     private List<String> ladoIzquierdo;
     private List<String> ladoDerecho;
+    LinkedHashMap<String, String> primeros = new LinkedHashMap<String, String>();
+    LinkedHashMap<String, String> segundos = new LinkedHashMap<String, String>();
 
     private String inicial;
 
@@ -25,7 +28,6 @@ public class Gramatica implements Data {
         this.terminales = new ArrayList<String>();
         this.noTerminales = new ArrayList<String>();
         this.producciones = new String[0];
-        this.inicial = "";
     }
 
     public String getCadena() {
@@ -96,6 +98,22 @@ public class Gramatica implements Data {
     public String toString() {
         return "Gramatica{" + "nombre=" + cadena + ", terminales=" + terminales + ", noTerminales=" + noTerminales
                 + ", producciones=" + producciones + ", inicial=" + inicial + '}';
+    }
+
+    public LinkedHashMap<String, String> getPrimeros() {
+        return primeros;
+    }
+
+    public void setPrimeros(LinkedHashMap<String, String> primeros) {
+        this.primeros.putAll(primeros);
+    }
+
+    public LinkedHashMap<String, String> getSegundos() {
+        return segundos;
+    }
+
+    public void setSegundos(LinkedHashMap<String, String> segundos) {
+        this.segundos = segundos;
     }
 
 }
