@@ -14,7 +14,7 @@ public class Gramatica implements Data {
     private List<String> produccionesFinales = new ArrayList<String>();
     private List<String> ladoIzquierdo;
     private List<String> ladoDerecho;
-    LinkedHashMap<String, String> primeros = new LinkedHashMap<String, String>();
+    LinkedHashMap<String, List<String>> primeros = new LinkedHashMap<String, List<String>>();
     LinkedHashMap<String, String> segundos = new LinkedHashMap<String, String>();
 
     private String inicial;
@@ -100,11 +100,11 @@ public class Gramatica implements Data {
                 + ", producciones=" + producciones + ", inicial=" + inicial + '}';
     }
 
-    public LinkedHashMap<String, String> getPrimeros() {
+    public LinkedHashMap<String, List<String>> getPrimeros() {
         return primeros;
     }
 
-    public void setPrimeros(LinkedHashMap<String, String> primeros) {
+    public void setPrimeros(LinkedHashMap<String, List<String>> primeros) {
         this.primeros.putAll(primeros);
     }
 

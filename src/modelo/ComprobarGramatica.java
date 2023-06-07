@@ -2,8 +2,6 @@ package modelo;
 
 import java.util.List;
 
-import javax.swing.text.html.parser.Element;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -68,9 +66,9 @@ public class ComprobarGramatica implements ComprobarG {
     public void quitarRecursividadIzquierda(Gramatica g) {
         List<String> nuevasReglas = new ArrayList<String>();
         List<String> ladoDerecho = g.getLadoDerecho();
-        List<String> ladoIzquierdo = g.getLadoIzquierdo();
         List<String> noTerminales = g.getNoTerminales();
         List<String> borrar = new ArrayList<String>();
+        List<String> borrarAux = new ArrayList<String>();
 
         g.setProduccionesFinales(nuevasReglas);
         for (int j = 0; j < ladoDerecho.size(); j++) {
@@ -79,10 +77,11 @@ public class ComprobarGramatica implements ComprobarG {
                 if (reglaNoRecursiva != null) {
                     String nuevaRegla;
                     String izqNoRecu = (noTerminales.get(j).charAt(0) + "'");
-                    if (!borrar.contains(reglaNoRecursiva)) {
+                    if (!borrarAux.contains(reglaNoRecursiva)) {
                         nuevaRegla = noTerminales.get(j).charAt(0) + "->" + reglaNoRecursiva + izqNoRecu;
                         nuevasReglas.add(nuevaRegla);
                         borrar.add(noTerminales.get(j) + reglaNoRecursiva);
+                        borrarAux.add(reglaNoRecursiva);
                     }
                     nuevaRegla = (izqNoRecu + "->") + ladoDerecho.get(j).substring(1) + izqNoRecu;
                     nuevasReglas.add(nuevaRegla);
@@ -131,15 +130,21 @@ public class ComprobarGramatica implements ComprobarG {
         for (int i = 0; i < noTerminales.size(); i++) {
             nuevasReglas.add(noTerminales.get(i) + "->" + terminales.get(i));
         }
+        // TODO arreglar duplicados
         g.setProduccionesFinales(nuevasReglas);
+
         g.setCadena(String.join("\n", g.getProduccionesFinales()));
+        System.out.println("Reglas finales" + g.getProduccionesFinales());
         obtenerProducciones(g);
         separarTerminales(g);
-        obtenerPrimeros(g.getInicial(), g);
-
-        System.out.println("no Terminal " + g.getNoTerminales());
-        System.out.println("Terminal " + g.getTerminales());
-        System.out.println("Inicial " + g.getInicial());
+        // System.out.println("no Terminal " + g.getNoTerminales());
+        // System.out.println("Terminal " + g.getTerminales());
+        // System.out.println("Inicial " + g.getInicial());
+        List<String> noTerAux = new ArrayList<String>();
+        noTerAux.addAll(g.getNoTerminales());
+        List<String> terAux = new ArrayList<String>();
+        terAux.addAll(g.getTerminales());
+        obtenerPrimeros(g.getInicial(), noTerAux, terAux, g);
 
     }
 
@@ -204,7 +209,6 @@ public class ComprobarGramatica implements ComprobarG {
         for (int i = 0; i < terminales.size(); i++) {
             if (Character.toString(terminales.get(i).charAt(0)).equals(aux1)
                     && noTerminales.get(i).equals(noTerRecu)) {
-                System.out.println(noTerminales.get(i) + " " + terminales.get(i));
                 terminales.add(i, (aux2 + terminales.get(i).substring(1)));
                 terminales.remove(i + 1);
             }
@@ -215,28 +219,35 @@ public class ComprobarGramatica implements ComprobarG {
 
     }
 
-    // TODO Obtener primeros y siguientes
-    public void obtenerPrimeros(String Ini, Gramatica g) {
-        // TODO cambiar el segundo valor de primeros para que sea una List en lugar de
-        // String y poder guardar varios valores para una misma llave
+    // TODO Arreglar primeros para que detecte terminales como id
+    public void obtenerPrimeros(String Ini, List<String> noTerminales, List<String> terminales, Gramatica g) {
+        List<String> noTerminalesAux = new ArrayList<String>();
+        noTerminalesAux.addAll(g.getNoTerminales());
 
-        List<String> terminales = g.getTerminales();
-        List<String> noTerminales = g.getNoTerminales();
-        LinkedHashMap<String, String> primeros = g.getPrimeros();
+        LinkedHashMap<String, List<String>> primeros = g.getPrimeros();
         String inicial = Ini;
         System.out.println("Inicial " + inicial);
         int indx = noTerminales.indexOf(inicial);
-        System.out.println("Index " + indx);
+        System.out.println("noTerminales " + noTerminales);
+        List<String> aux = primeros.get(inicial);
+
+        if (aux == null) {
+            aux = new ArrayList<String>();
+            primeros.put(inicial, aux);
+        }
 
         String terminal = terminales.get(indx);
-        if (!noTerminales.contains(terminal.substring(0, 1))) {
-            primeros.put(inicial, terminal.substring(0, 1));
+        if (!noTerminalesAux.contains(terminal.substring(0, 1))) {
+            if (!aux.contains(terminal.substring(0, 1))) {
+                aux.add(terminal.substring(0, 1));
+
+            }
             terminales.remove(indx);
             noTerminales.remove(indx);
             System.out.println("terminal " + primeros);
 
             if (!terminales.isEmpty()) {
-                obtenerPrimeros(noTerminales.get(0), g);
+                obtenerPrimeros(noTerminales.get(0), noTerminales, terminales, g);
             } else {
                 g.setPrimeros(primeros);
                 System.out.println(g.getPrimeros());
@@ -245,19 +256,24 @@ public class ComprobarGramatica implements ComprobarG {
         } else {
             System.out.println("Holaaaaa");
             if (primeros.containsKey(terminal.substring(0, 1))) {
-                primeros.put(inicial, primeros.get(terminal.substring(0, 1)));
+                for (String i : primeros.get(terminal.substring(0, 1))) {
+                    if (!aux.contains(i)) {
+                        aux.add(i);
+                    }
+                }
                 terminales.remove(indx);
                 noTerminales.remove(indx);
                 if (!terminales.isEmpty()) {
-                    obtenerPrimeros(noTerminales.get(0), g);
+                    obtenerPrimeros(noTerminales.get(0), noTerminales, terminales, g);
                 } else {
                     g.setPrimeros(primeros);
                     System.out.println(g.getPrimeros());
 
                 }
             } else {
-                obtenerPrimeros(terminal.substring(0, 1), g);
+                obtenerPrimeros(terminal.substring(0, 1), noTerminales, terminales, g);
             }
         }
     }
+
 }
