@@ -145,6 +145,10 @@ public class ComprobarGramatica implements ComprobarG {
         List<String> terAux = new ArrayList<String>();
         terAux.addAll(g.getTerminales());
         obtenerPrimeros(g.getInicial(), noTerAux, terAux, g);
+        noTerAux.addAll(g.getNoTerminales());
+        terAux.addAll(g.getTerminales());
+
+        obtenerSiguientes(g.getInicial(), terAux, noTerAux, g, g.getInicial());
 
     }
 
@@ -274,6 +278,146 @@ public class ComprobarGramatica implements ComprobarG {
                 obtenerPrimeros(terminal.substring(0, 1), noTerminales, terminales, g);
             }
         }
+    }
+
+    public void obtenerSiguientes(String ini, List<String> terminales, List<String> noTerminales, Gramatica g,
+            String iniAnt) {
+        LinkedHashMap<String, List<String>> siguientes = g.getSiguientes();
+        LinkedHashMap<String, List<String>> primeros = g.getPrimeros();
+        List<String> izquierda = g.getLadoIzquierdo();
+        String inicial = ini;
+        System.out.println("yo" + izquierda);
+        int indx = noTerminales.indexOf(inicial);
+        List<String> aux = siguientes.get(inicial);
+        if (aux == null) {
+            aux = new ArrayList<String>();
+            siguientes.put(inicial, aux);
+        }
+
+        if (inicial.equals(g.getInicial())) {
+            if (!aux.contains("$")) {
+                aux.add("$");
+            }
+        }
+
+        for (String i : terminales) {
+
+            int indice = i.indexOf(inicial);
+            System.out.println("inicial" + inicial + "terminal " + i + "indice " + indice + "IniAnt" + iniAnt);
+
+            if (indice != -1) {
+                if (indice + 1 <= i.length() - 1) {
+                    if (i.charAt(indice + 1) != '\'') {
+                        if (indice + 2 <= i.length() - 1) {
+                            if (i.charAt(indice + 2) != '\'') {
+                                if (!noTerminales.contains(i.substring(indice + 1, indice + 2))) {
+                                    if (!aux.contains(i.substring(indice + 1, indice + 2))) {
+                                        aux.add(i.substring(indice + 1, indice + 2));
+                                    }
+                                } else {
+                                    if (primeros.containsKey(i.substring(indice + 1, indice + 2))
+                                            && !primeros.get(i.substring(indice + 1, indice + 2)).contains("e")) {
+                                        for (String j : primeros.get(i.substring(indice + 1, indice + 2))) {
+                                            if (!aux.contains(j) && !j.equals("e")) {
+                                                aux.add(j);
+                                            }
+                                        }
+                                    } else if (primeros.containsKey(i.substring(indice + 1, indice + 2))
+                                            && primeros.get(i.substring(indice + 1, indice + 2)).contains("e")
+                                            && !iniAnt.equals(i.substring(indice + 1, indice + 2))) {
+                                        for (String j : primeros.get(i.substring(indice + 1, indice + 2))) {
+                                            if (!aux.contains(j)) {
+                                                aux.add(j);
+                                            }
+                                        }
+                                        if (siguientes.containsKey(noTerminales.get(terminales.indexOf(i)))) {
+                                            for (String j : primeros.get(i.substring(indice + 1, indice + 2))) {
+                                                if (!aux.contains(j)) {
+                                                    aux.add(j);
+                                                }
+                                            }
+                                        } else {
+                                            obtenerSiguientes(noTerminales.get(terminales.indexOf(
+                                                    i)), terminales,
+                                                    noTerminales,
+                                                    g,
+                                                    inicial);
+                                        }
+                                    }
+                                }
+                            }
+                        } else if (indice + 3 <= i.length() - 1) {
+                            if (primeros.containsKey(i.substring(indice + 1, indice + 3))
+                                    && !primeros.get(i.substring(indice + 1, indice + 3)).contains("e")) {
+                                for (String j : primeros.get(i.substring(indice + 1, indice + 3))) {
+                                    if (!aux.contains(j)) {
+                                        aux.add(j);
+                                    }
+                                }
+                            } else if (primeros.containsKey(i.substring(indice + 1, indice + 3))
+                                    && primeros.get(i.substring(indice + 1, indice + 3)).contains("e")
+                                    && !iniAnt.equals(i.substring(indice + 1, indice + 3))) {
+                                for (String j : primeros.get(i.substring(indice + 1, indice + 3))) {
+                                    if (!aux.contains(j) && !j.equals("e")) {
+                                        aux.add(j);
+                                    }
+                                }
+                                if (siguientes.containsKey(noTerminales.get(terminales.indexOf(i)))) {
+                                    for (String j : siguientes.get(noTerminales.get(terminales.indexOf(i)))) {
+                                        if (!aux.contains(j)) {
+                                            aux.add(j);
+                                        }
+                                    }
+                                } else {
+                                    obtenerSiguientes(noTerminales.get(terminales.indexOf(
+                                            i)), terminales, noTerminales, g,
+                                            inicial);
+                                }
+                            }
+                        }
+                    } else {
+                        if (!iniAnt.equals(i.substring(indice, indice + 2))
+                                && !i.substring(indice, indice + 2).equals(noTerminales.get(terminales.indexOf(i)))) {
+                            System.out.println("entro " + i.substring(indice, indice + 2) + " Sale "
+                                    + noTerminales.get(terminales.indexOf(i)));
+                            if (siguientes.containsKey(noTerminales.get(terminales.indexOf(i)))) {
+                                System.out.println("entro mucho");
+                                for (String j : siguientes.get(noTerminales.get(terminales.indexOf(i)))) {
+                                    if (!aux.contains(j)) {
+                                        aux.add(j);
+                                    }
+                                }
+                            } else {
+                                obtenerSiguientes(i.substring(indice, indice + 2), terminales, noTerminales, g,
+                                        inicial);
+                            }
+                        }
+
+                    }
+
+                } else {
+                    if (!inicial.equals(i.substring(indice))) {
+                        System.out.println("si");
+                        if (siguientes.containsKey(noTerminales.get(terminales.indexOf(i)))) {
+                            for (String j : siguientes.get(noTerminales.get(terminales.indexOf(i)))) {
+                                if (!aux.contains(j)) {
+                                    aux.add(j);
+                                }
+                            }
+                        }
+
+                    }
+
+                }
+            }
+
+        }
+        for (String i : izquierda) {
+            if (!siguientes.containsKey(i)) {
+                obtenerSiguientes(i, terminales, noTerminales, g, inicial);
+            }
+        }
+        System.out.println("siguientes " + siguientes);
     }
 
 }

@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -122,6 +123,9 @@ public class VentanaPrincipal extends VentanaAbstracta {
                 reglas = this.reglasGramaticales.getText();
                 gramatica = new Gramatica(reglas);
                 this.control.ejecutaComando(Comandos.COMPROBAR, gramatica);
+                JOptionPane.showMessageDialog(this,
+                        "Producciones sin recursividad a la izquierda " + gramatica.getProduccionesFinales()
+                                + "\n Primeros " + gramatica.getPrimeros());
                 break;
             case Comandos.BORRAR:
                 break;
